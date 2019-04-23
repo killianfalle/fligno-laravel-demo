@@ -26,6 +26,7 @@ Route::middleware('auth:api')->get('/hello', function (Request $request) {
     return 'hello';
 });
 Route::post('login', 'APIUserController@login')->middleware('cors');
+Route::post('login/avatar', 'APIUserController@updateAvatar')->middleware('cors');
 Route::post('/admin/login', 'AdminController@login')->middleware('cors');
 Route::post('register', 'APIUserController@register')->middleware('cors');
 Route::delete('user/delete/{id}', 'APIUserController@deleteUser')->middleware('cors');

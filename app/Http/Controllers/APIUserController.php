@@ -8,6 +8,7 @@ use Validator;
 use Carbon\Carbon;
 use Laravel\Passport\Passport; 
 use Illuminate\Support\Facades\Hash;
+use Image;
 //use App\Http\Controllers\Auth\LoginProxy;
 class APIUserController extends Controller
 {
@@ -25,21 +26,42 @@ class APIUserController extends Controller
         else{ 
             return response()->json(['status'=>'error', 'message'=>'Unauthorised'], 401); 
         }
-	}
-	
-	public function adminLogin(){ 
-        if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){ 
-			$admin = Auth::user();
-			$token = $admin->createToken('MyApp')-> accessToken; 
-			//Passport::tokensExpireIn(now()->addDays(15));
-			//Passport::refreshTokensExpireIn(now()->addDays(30));
-			Passport::tokensExpireIn(Carbon::now()->addDays(15));			
-			return response()->json(['status' => 'ok', 'token' => $token], $this-> successStatus);
-        } 
-        else{ 
-            return response()->json(['status'=>'error', 'message'=>'Unauthorised'], 401); 
+    }
+    
+    public function updateAvatar(Request $request){
+
+        header('Access-Control-Allow-Origin: *');
+        header("Content-type:multipart/form-data");
+        header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-  Disposition, Content-Description');
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        $target_path = "uploads/";
+        if (!file_exists("uploads")) {
+          mkdir("uploads", 0777, true);
+        }
+        $target_path = $target_path .basename($_FILES['photo']['name']);
+        
+        if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
+            $output = shell_exec('python ./predict.py');
+            echo json_encode($output);
+        } else {
+            echo $target_path;
+            echo "There was an error uploading the file, please try again!";
         }
     }
+	
+	// public function adminLogin(){ 
+    //     if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){ 
+	// 		$admin = Auth::user();
+	// 		$token = $admin->createToken('MyApp')-> accessToken; 
+	// 		//Passport::tokensExpireIn(now()->addDays(15));
+	// 		//Passport::refreshTokensExpireIn(now()->addDays(30));
+	// 		Passport::tokensExpireIn(Carbon::now()->addDays(15));			
+	// 		return response()->json(['status' => 'ok', 'token' => $token], $this-> successStatus);
+    //     } 
+    //     else{ 
+    //         return response()->json(['status'=>'error', 'message'=>'Unauthorised'], 401); 
+    //     }
+    // }
 
     public function logout(Request $request)
     {
